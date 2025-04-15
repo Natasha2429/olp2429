@@ -18,12 +18,23 @@ const upload = multer({ storage });
 
 // Upload new course
 router.post('/upload', upload.single('pdf'), async (req, res) => {
+  try {
     const { title } = req.body;
-    const pdfPath = req.file.path;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const pdfPath = `/uploads/${req.file.filename}`;
     const newCourse = new Course({ title, pdfPath });
     await newCourse.save();
+
     res.json({ message: 'Course uploaded successfully' });
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error); // <-- Add this line
+    res.status(500).json({ error: "Server error during upload" });
+  }
 });
+
 
 // Get all courses
 router.get('/', async (req, res) => {

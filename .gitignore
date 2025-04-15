@@ -44,8 +44,7 @@ coverage/
 test-output/
 
 # Optional: ignore uploads if user-generated
-uploads/
-public/uploads/
 
 # Ignore local MongoDB data (if present)
 dump/
+.vercel
