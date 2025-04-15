@@ -186,58 +186,157 @@ document.getElementById("login-form").addEventListener("submit", async function 
   }
 });
 
-    // Upload course
-    document.getElementById("upload-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const title = document.getElementById("course-title").value;
-      const file = document.getElementById("course-pdf").files[0];
+    // // Upload course
+    // document.getElementById("upload-form").addEventListener("submit", function (e) {
+    //   e.preventDefault();
+    //   const title = document.getElementById("course-title").value;
+    //   const file = document.getElementById("course-pdf").files[0];
 
-      if (!file) {
-        alert("Please select a PDF file.");
-        return;
-      }
+    //   if (!file) {
+    //     alert("Please select a PDF file.");
+    //     return;
+    //   }
 
-      const reader = new FileReader();
-      reader.onload = function () {
-        let courses = JSON.parse(localStorage.getItem("courses")) || [];
-        courses.push({ title, pdf: reader.result });
-        localStorage.setItem("courses", JSON.stringify(courses));
-        alert("Course uploaded!");
-        document.getElementById("upload-form").reset();
-      };
-      reader.readAsDataURL(file);
+    //   const reader = new FileReader();
+    //   reader.onload = function () {
+    //     let courses = JSON.parse(localStorage.getItem("courses")) || [];
+    //     courses.push({ title, pdf: reader.result });
+    //     localStorage.setItem("courses", JSON.stringify(courses));
+    //     alert("Course uploaded!");
+    //     document.getElementById("upload-form").reset();
+    //   };
+    //   reader.readAsDataURL(file);
+    // });
+
+  //     document.getElementById("upload-form").addEventListener("submit", async function (e) {
+  //   e.preventDefault();
+  //   const title = document.getElementById("course-title").value;
+  //   const file = document.getElementById("course-pdf").files[0];
+
+  //   const formData = new FormData();
+  //   formData.append("title", title);
+  //   formData.append("pdf", file);
+
+  //   try {
+  //     const res = await fetch("http://localhost:5000/api/courses", {
+  //       method: "POST",
+  //       body: formData
+  //     });
+
+  //     const data = await res.json();
+  //     if (!res.ok) throw new Error(data.message);
+
+  //     alert("Course uploaded successfully!");
+  //     document.getElementById("upload-form").reset();
+  //     showPage("courses");
+  //     displayCourses(); // Refresh
+  //   } catch (err) {
+  //     alert("Upload failed: " + err.message);
+  //   }
+  // });
+  document.getElementById("upload-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const title = document.getElementById("course-title").value;
+  const file = document.getElementById("course-pdf").files[0];
+
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("pdf", file);
+
+  try {
+    const res = await fetch("http://localhost:5000/api/courses/upload", { // ✅ correct route
+      method: "POST",
+      body: formData,
     });
 
-    // Display courses
-    function displayCourses() {
-      const courses = JSON.parse(localStorage.getItem("courses")) || [];
-      const courseList = document.getElementById("course-list");
-      courseList.innerHTML = "";
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
 
-      if (courses.length === 0) {
-        courseList.innerHTML = "<p>No courses available.</p>";
-        return;
+    alert("Course uploaded successfully!");
+    document.getElementById("upload-form").reset();
+    showPage("courses"); // optional
+    displayCourses();    // refresh
+  } catch (err) {
+    alert("Upload failed: " + err.message);
+  }
+});
+
+
+//     // Display courses
+//     function displayCourses() {
+//       const courses = JSON.parse(localStorage.getItem("courses")) || [];
+//       const courseList = document.getElementById("course-list");
+//       courseList.innerHTML = "";
+
+//       if (courses.length === 0) {
+//         courseList.innerHTML = "<p>No courses available.</p>";
+//         return;
+//       }
+
+//       courses.forEach((course, index) => {
+//         const courseDiv = document.createElement("div");
+//         courseDiv.innerHTML = `
+//   <h3>${course.title}</h3>
+//   <a href="${course.pdfPath}" target="_blank" download>Download PDF</a>
+//   <button onclick="deleteCourse('${course._id}')">Delete</button>
+//   <hr>
+// `;
+
+//         ;
+//         courseList.appendChild(courseDiv);
+//       });
+//     }
+      // 
+      // Display courses from backend
+      async function displayCourses() {
+        try {
+          const res = await fetch("http://localhost:5000/api/courses");
+          const courses = await res.json();
+          const courseList = document.getElementById("course-list");
+          courseList.innerHTML = "";
+
+          if (courses.length === 0) {
+            courseList.innerHTML = "<p>No courses available.</p>";
+            return;
+          }
+
+          courses.forEach((course) => {
+            const courseDiv = document.createElement("div");
+            courseDiv.innerHTML = `
+              <h3>${course.title}</h3>
+              <a href="http://localhost:5000/${course.pdfPath}" target="_blank" download>Download PDF</a>
+              <hr>
+            `;
+            courseList.appendChild(courseDiv);
+          });
+        } catch (error) {
+          console.error("Error fetching courses:", error);
+          document.getElementById("course-list").innerHTML = "<p>Error loading courses.</p>";
+        }
       }
 
-      courses.forEach((course, index) => {
-        const courseDiv = document.createElement("div");
-        courseDiv.innerHTML = `
-          <h3>${course.title}</h3>
-          <a href="${course.pdf}" target="_blank" download>Download PDF</a>
-          <button onclick="deleteCourse(${index})">Delete</button>
-          <hr>
-        `;
-        courseList.appendChild(courseDiv);
-      });
-    }
+    // // Delete course
+    // function deleteCourse(index) {
+    //   let courses = JSON.parse(localStorage.getItem("courses")) || [];
+    //   courses.splice(index, 1);
+    //   localStorage.setItem("courses", JSON.stringify(courses));
+    //   displayCourses();
+    // }
+          async function deleteCourse(id) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+            method: "DELETE"
+          });
+          const data = await res.json();
 
-    // Delete course
-    function deleteCourse(index) {
-      let courses = JSON.parse(localStorage.getItem("courses")) || [];
-      courses.splice(index, 1);
-      localStorage.setItem("courses", JSON.stringify(courses));
-      displayCourses();
-    }
+          alert("Course deleted");
+          displayCourses(); // Refresh the list
+        } catch (err) {
+          console.error("Delete error:", err);
+          alert("Failed to delete course");
+        }
+      }
+
 
     // On load
     displayCourses();
@@ -291,4 +390,3 @@ document.getElementById("login-form").addEventListener("submit", async function 
   </style>
 
 </body>
-</html>
