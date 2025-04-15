@@ -123,7 +123,7 @@
   const password = document.getElementById("signup-password").value;
 
   try {
-    const res = await fetch("http://localhost:5000/api/users/signup", {
+    const res = await fetch("http://olp2429.onrender.com/api/users/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -168,7 +168,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
   const password = document.getElementById("login-password").value;
 
   try {
-    const res = await fetch("http://localhost:5000/api/users/login", {
+    const res = await fetch("http://https://olp2429.onrender.com/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -218,7 +218,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
   //   formData.append("pdf", file);
 
   //   try {
-  //     const res = await fetch("http://localhost:5000/api/courses", {
+  //     const res = await fetch("http://https://olp2429.onrender.com/api/courses", {
   //       method: "POST",
   //       body: formData
   //     });
@@ -244,7 +244,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
   formData.append("pdf", file);
 
   try {
-    const res = await fetch("http://localhost:5000/api/courses/upload", { // ✅ correct route
+    const res = await fetch("https://olp2429.onrender.com/api/courses/upload", { // ✅ correct route
       method: "POST",
       body: formData,
     });
@@ -290,7 +290,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
       // Display courses from backend
       async function displayCourses() {
         try {
-          const res = await fetch("http://localhost:5000/api/courses");
+          const res = await fetch("https://olp2429.onrender.com/api/courses");
           const courses = await res.json();
           const courseList = document.getElementById("course-list");
           courseList.innerHTML = "";
@@ -304,7 +304,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
             const courseDiv = document.createElement("div");
             courseDiv.innerHTML = `
               <h3>${course.title}</h3>
-              <a href="http://localhost:5000/${course.pdfPath}" target="_blank" download>Download PDF</a>
+              <a href="https://olp2429.onrender.com/${course.pdfPath}" target="_blank" download>Download PDF</a>
               <hr>
             `;
             courseList.appendChild(courseDiv);
@@ -324,7 +324,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
     // }
           async function deleteCourse(id) {
         try {
-          const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+          const res = await fetch(`https://olp2429.onrender.com/api/courses/${id}`, {
             method: "DELETE"
           });
           const data = await res.json();
