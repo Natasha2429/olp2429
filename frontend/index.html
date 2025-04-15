@@ -72,10 +72,8 @@
   </section>
 
   <script>
-    // Optional: uncomment this line while developing to always start from login
-    // localStorage.removeItem("loggedIn");
+    const BASE_URL = "https://olp2429.onrender.com";
 
-    // Show specific page
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(page => {
         page.style.display = 'none';
@@ -83,14 +81,12 @@
       document.getElementById(pageId).style.display = 'block';
     }
 
-    // Logout function
     function logout() {
       localStorage.removeItem("loggedIn");
       document.getElementById("main-header").style.display = "none";
       showPage("login");
     }
 
-    // On Load
     if (localStorage.getItem("loggedIn") === "true") {
       document.getElementById("main-header").style.display = "block";
       showPage("home");
@@ -98,247 +94,121 @@
       showPage("login");
     }
 
-   /* // Signup
-    document.getElementById("signup-form").addEventListener("submit", function (e) {
+    document.getElementById("signup-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
 
-      let users = JSON.parse(localStorage.getItem("users")) || [];
+      try {
+        const res = await fetch(`${BASE_URL}/api/users/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-      if (users.some(user => user.email === email)) {
-        alert("User already exists! Please login.");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+
+        alert("Signup successful! Please login.");
         showPage("login");
-        return;
+      } catch (err) {
+        console.error("Signup error:", err);
+        alert("Signup failed: " + err.message);
       }
-
-      users.push({ email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Signup successful! Please login.");
-      showPage("login");
-    });*/
-    document.getElementById("signup-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-
-  try {
-    const res = await fetch("http://olp2429.onrender.com/api/users/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
-
-    alert("Signup successful! Please login.");
-    showPage("login");
-  //} catch (err) {
-   // alert("Signup failed: " + err.message);
-  //}
-} catch (err) {
-  console.error("Signup error:", err); // Add this
-  res.status(500).json({ message: 'Signup error', error: err });
-}
-});
-
-    /*// Login
-    document.getElementById("login-form").addEventListener("submit", function (e) {
+    document.getElementById("login-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
 
-      const users = JSON.parse(localStorage.getItem("users")) || [];
+      try {
+        const res = await fetch(`${BASE_URL}/api/users/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-      const user = users.find(user => user.email === email && user.password === password);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
 
-      if (user) {
         alert("Login successful!");
         localStorage.setItem("loggedIn", "true");
         document.getElementById("main-header").style.display = "block";
         showPage("home");
-      } else {
-        alert("Invalid credentials!");
+      } catch (err) {
+        alert("Login failed: " + err.message);
       }
-    });*/// Login (updated to POST to backend)
-document.getElementById("login-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-
-  try {
-    const res = await fetch("http://https://olp2429.onrender.com/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    document.getElementById("upload-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const title = document.getElementById("course-title").value;
+      const file = document.getElementById("course-pdf").files[0];
 
-    alert("Login successful!");
-    localStorage.setItem("loggedIn", "true");
-    document.getElementById("main-header").style.display = "block";
-    showPage("home");
-  } catch (err) {
-    alert("Login failed: " + err.message);
-  }
-});
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("pdf", file);
 
-    // // Upload course
-    // document.getElementById("upload-form").addEventListener("submit", function (e) {
-    //   e.preventDefault();
-    //   const title = document.getElementById("course-title").value;
-    //   const file = document.getElementById("course-pdf").files[0];
+      try {
+        const res = await fetch(`${BASE_URL}/api/courses/upload`, {
+          method: "POST",
+          body: formData,
+        });
 
-    //   if (!file) {
-    //     alert("Please select a PDF file.");
-    //     return;
-    //   }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
 
-    //   const reader = new FileReader();
-    //   reader.onload = function () {
-    //     let courses = JSON.parse(localStorage.getItem("courses")) || [];
-    //     courses.push({ title, pdf: reader.result });
-    //     localStorage.setItem("courses", JSON.stringify(courses));
-    //     alert("Course uploaded!");
-    //     document.getElementById("upload-form").reset();
-    //   };
-    //   reader.readAsDataURL(file);
-    // });
-
-  //     document.getElementById("upload-form").addEventListener("submit", async function (e) {
-  //   e.preventDefault();
-  //   const title = document.getElementById("course-title").value;
-  //   const file = document.getElementById("course-pdf").files[0];
-
-  //   const formData = new FormData();
-  //   formData.append("title", title);
-  //   formData.append("pdf", file);
-
-  //   try {
-  //     const res = await fetch("http://https://olp2429.onrender.com/api/courses", {
-  //       method: "POST",
-  //       body: formData
-  //     });
-
-  //     const data = await res.json();
-  //     if (!res.ok) throw new Error(data.message);
-
-  //     alert("Course uploaded successfully!");
-  //     document.getElementById("upload-form").reset();
-  //     showPage("courses");
-  //     displayCourses(); // Refresh
-  //   } catch (err) {
-  //     alert("Upload failed: " + err.message);
-  //   }
-  // });
-  document.getElementById("upload-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const title = document.getElementById("course-title").value;
-  const file = document.getElementById("course-pdf").files[0];
-
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("pdf", file);
-
-  try {
-    const res = await fetch("https://olp2429.onrender.com/api/courses/upload", { // ✅ correct route
-      method: "POST",
-      body: formData,
+        alert("Course uploaded successfully!");
+        document.getElementById("upload-form").reset();
+        showPage("courses");
+        displayCourses();
+      } catch (err) {
+        alert("Upload failed: " + err.message);
+      }
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    async function displayCourses() {
+      try {
+        const res = await fetch(`${BASE_URL}/api/courses`);
+        const courses = await res.json();
+        const courseList = document.getElementById("course-list");
+        courseList.innerHTML = "";
 
-    alert("Course uploaded successfully!");
-    document.getElementById("upload-form").reset();
-    showPage("courses"); // optional
-    displayCourses();    // refresh
-  } catch (err) {
-    alert("Upload failed: " + err.message);
-  }
-});
-
-
-//     // Display courses
-//     function displayCourses() {
-//       const courses = JSON.parse(localStorage.getItem("courses")) || [];
-//       const courseList = document.getElementById("course-list");
-//       courseList.innerHTML = "";
-
-//       if (courses.length === 0) {
-//         courseList.innerHTML = "<p>No courses available.</p>";
-//         return;
-//       }
-
-//       courses.forEach((course, index) => {
-//         const courseDiv = document.createElement("div");
-//         courseDiv.innerHTML = `
-//   <h3>${course.title}</h3>
-//   <a href="${course.pdfPath}" target="_blank" download>Download PDF</a>
-//   <button onclick="deleteCourse('${course._id}')">Delete</button>
-//   <hr>
-// `;
-
-//         ;
-//         courseList.appendChild(courseDiv);
-//       });
-//     }
-      // 
-      // Display courses from backend
-      async function displayCourses() {
-        try {
-          const res = await fetch("https://olp2429.onrender.com/api/courses");
-          const courses = await res.json();
-          const courseList = document.getElementById("course-list");
-          courseList.innerHTML = "";
-
-          if (courses.length === 0) {
-            courseList.innerHTML = "<p>No courses available.</p>";
-            return;
-          }
-
-          courses.forEach((course) => {
-            const courseDiv = document.createElement("div");
-            courseDiv.innerHTML = `
-              <h3>${course.title}</h3>
-              <a href="https://olp2429.onrender.com/${course.pdfPath}" target="_blank" download>Download PDF</a>
-              <hr>
-            `;
-            courseList.appendChild(courseDiv);
-          });
-        } catch (error) {
-          console.error("Error fetching courses:", error);
-          document.getElementById("course-list").innerHTML = "<p>Error loading courses.</p>";
+        if (courses.length === 0) {
+          courseList.innerHTML = "<p>No courses available.</p>";
+          return;
         }
+
+        courses.forEach((course) => {
+          const courseDiv = document.createElement("div");
+          courseDiv.innerHTML = `
+            <h3>${course.title}</h3>
+            <a href="${BASE_URL}/${course.pdfPath}" target="_blank" download>Download PDF</a>
+            <hr>
+          `;
+          courseList.appendChild(courseDiv);
+        });
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        document.getElementById("course-list").innerHTML = "<p>Error loading courses.</p>";
       }
+    }
 
-    // // Delete course
-    // function deleteCourse(index) {
-    //   let courses = JSON.parse(localStorage.getItem("courses")) || [];
-    //   courses.splice(index, 1);
-    //   localStorage.setItem("courses", JSON.stringify(courses));
-    //   displayCourses();
-    // }
-          async function deleteCourse(id) {
-        try {
-          const res = await fetch(`https://olp2429.onrender.com/api/courses/${id}`, {
-            method: "DELETE"
-          });
-          const data = await res.json();
-
-          alert("Course deleted");
-          displayCourses(); // Refresh the list
-        } catch (err) {
-          console.error("Delete error:", err);
-          alert("Failed to delete course");
-        }
+    async function deleteCourse(id) {
+      try {
+        const res = await fetch(`${BASE_URL}/api/courses/${id}`, {
+          method: "DELETE"
+        });
+        const data = await res.json();
+        alert("Course deleted");
+        displayCourses();
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert("Failed to delete course");
       }
+    }
 
-
-    // On load
     displayCourses();
   </script>
 
@@ -390,3 +260,4 @@ document.getElementById("login-form").addEventListener("submit", async function 
   </style>
 
 </body>
+</html>
